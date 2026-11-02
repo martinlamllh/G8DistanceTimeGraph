@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion and Distance-Time Graphs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        canvas { display: block; width: 100%; height: 100%; border-radius: 0.5rem; }
+        .hidden-section { display: none !important; }
+        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        /* Custom checkbox style */
+        .motion-checkbox:checked + label {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <!-- MAIN MENU -->
+    <div id="main-menu" class="flex flex-col items-center justify-center flex-grow py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl overflow-hidden text-center p-10">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Motion & Distance-Time Graphs</h1>
+            <p class="text-lg text-gray-600 mb-8">An interactive educational tool to explore kinematics.</p>
+            
+            <div class="flex flex-col gap-4 max-w-sm mx-auto mb-10">
+                <button onclick="openSection('section1')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-transform transform hover:scale-105">
+                    Section 1: Basic Plotting
+                </button>
+                <button onclick="openSection('section2')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-transform transform hover:scale-105">
+                    Section 2: Advanced Curves
+                </button>
+                <button onclick="openSection('section3')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-transform transform hover:scale-105">
+                    Section 3: Predict the Motion (Quizzes)
+                </button>
+                <button onclick="openSection('section4')" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-transform transform hover:scale-105">
+                    Section 4: Predict the Graph (Quizzes)
+                </button>
+            </div>
+
+            <div class="border-t pt-8 mt-8 flex flex-col sm:flex-row items-center justify-center gap-6">
+                <img src="逍遙教育 Back 3.jpg" alt="Instructor Profile" class="w-32 h-32 object-cover rounded-lg shadow-sm border p-1 bg-white">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://instagram.com/martinsir.education.hk" alt="QR Code" class="w-24 h-24 rounded-lg shadow-sm border p-1 bg-white hidden sm:block">
+                <div class="text-left">
+                    <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Created By</p>
+                    <p class="text-xl font-bold text-gray-900 mb-2">martinsir.education</p>
+                    <p class="text-gray-600 mb-2">Follow for more science learning!</p>
+                    <a href="https://instagram.com/martinsir.education.hk" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+                        @martinsir.education.hk
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION FRAME -->
+    <div id="app-frame" class="hidden-section flex flex-col flex-grow">
+        <!-- Top Navigation -->
+        <nav class="bg-white shadow-sm z-10 sticky top-0 border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <h2 id="section-title" class="text-xl font-bold text-gray-800">Section Title</h2>
+                    <button onclick="goToMenu()" class="text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg font-semibold transition-colors">
+                        ← Back to Menu
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+            
+            <!-- SECTION 1 -->
+            <section id="section1" class="hidden-section">
+                <div class="mb-6">
+                    <p class="text-gray-600">Select up to 2 motions to compare. Observe the physical track and the plotted distance-time graph.</p>
+                </div>
+                <div id="sim1-container"></div>
+            </section>
+
+            <!-- SECTION 2 -->
+            <section id="section2" class="hidden-section">
+                <div class="mb-6">
+                    <p class="text-gray-600">Observe objects changing speed (accelerating or braking). Notice how the graph curves.</p>
+                </div>
+                <div id="sim2-container"></div>
+            </section>
+
+            <!-- SECTION 3 -->
+            <section id="section3" class="hidden-section">
+                <div class="mb-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                        <p class="text-gray-600 max-w-2xl">Look at the distance-time graph and predict the motion of the object. Submit your description to reveal the model answer and watch the physical animation.</p>
+                        <select id="quiz-selector" class="text-sm font-bold bg-blue-50 text-blue-800 border border-blue-300 rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </select>
+                    </div>
+                </div>
+                <div id="quiz-container"></div>
+            </section>
+
+            <!-- SECTION 4 -->
+            <section id="section4" class="hidden-section">
+                <div class="mb-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                        <p class="text-gray-600 max-w-2xl">Watch the physical motion of the object and predict its distance-time graph. Submit your description to reveal the correct graph.</p>
+                        <select id="rev-quiz-selector" class="text-sm font-bold bg-indigo-50 text-indigo-800 border border-indigo-300 rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </select>
+                    </div>
+                </div>
+                <div id="rev-quiz-container"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- Shared Data & Physics ---
+        const MOTIONS_BASIC = [
+            { id: 'm1', name: 'Snail', emoji: '🐢', color: '#16a34a', desc: 'The snail moves at a constant slow speed.', func: t => 3 * t },
+            { id: 'm2', name: 'Cheetah', emoji: '🐆', color: '#ea580c', desc: 'The cheetah moves at a constant fast speed.', func: t => 10 * t },
+            { id: 'm3', name: 'Bus', emoji: '🚌', color: '#2563eb', desc: 'The bus moves at a constant speed first, then remains at rest.', func: t => (t <= 5) ? 10 * t : 50 },
+            { id: 'm4', name: 'Dog', emoji: '🐕', color: '#dc2626', desc: 'The dog moves at a constant fast speed, then changes to a constant slow speed.', func: t => (t <= 5) ? 12 * t : 60 + 4 * (t - 5) },
+            { id: 'm5', name: 'Bicycle', emoji: '🚲', color: '#9333ea', desc: 'The bicycle moves at a constant slow speed, then changes to a constant fast speed.', func: t => (t <= 5) ? 4 * t : 20 + 12 * (t - 5) }
+        ];
+
+        const MOTIONS_ADVANCED = [
+            { id: 'a1', name: 'Rocket', emoji: '🚀', color: '#db2777', desc: 'The rocket moves with an increasing speed.', func: t => t * t },
+            { id: 'a2', name: 'Skydiver', emoji: '🪂', color: '#0d9488', desc: 'The skydiver moves with a decreasing speed.', func: t => 20 * t - t * t }
+        ];
+
+        const QUIZZES = [
+            // 7 Single section
+            { id: 'q1', emoji: '🚶', func: t => 3*t, answer: "The object moves at a constant slow speed.", graphAnswer: "A straight line with a gentle upward slope." },
+            { id: 'q2', emoji: '🏃', func: t => 9*t, answer: "The object moves at a constant fast speed.", graphAnswer: "A straight line with a steep upward slope." },
+            { id: 'q3', emoji: '🛋️', func: t => 0, answer: "The object remains at rest.", graphAnswer: "A horizontal straight line." },
+            { id: 'q4', emoji: '🚄', func: t => t*t, answer: "The object moves with an increasing speed.", graphAnswer: "A curve becoming steeper (bending upwards)." },
+            { id: 'q5', emoji: '🛹', func: t => 18*t - 0.9*t*t, answer: "The object moves with a decreasing speed.", graphAnswer: "A curve becoming flatter (bending downwards)." },
+            { id: 'q6', emoji: '🚀', func: t => 0.5*t*t + 2*t, answer: "The object moves with an increasing speed.", graphAnswer: "A curve becoming steeper (bending upwards)." },
+            { id: 'q7', emoji: '🚂', func: t => 15*t - 0.5*t*t, answer: "The object moves with a decreasing speed.", graphAnswer: "A curve becoming flatter (bending downwards)." },
+            
+            // 5 Two-section
+            { id: 'q8', emoji: '🚗', func: t => (t<=5) ? 12*t : 60 + 3*(t-5), answer: "The object moves at a constant fast speed, then changes to a constant slow speed.", graphAnswer: "A straight line with a steep slope, followed by a straight line with a gentle slope." },
+            { id: 'q9', emoji: '🚲', func: t => (t<=5) ? 4*t : 20 + 10*(t-5), answer: "The object moves at a constant slow speed, then changes to a constant fast speed.", graphAnswer: "A straight line with a gentle slope, followed by a straight line with a steep slope." },
+            { id: 'q10', emoji: '🐕', func: t => (t<=5) ? 0 : 8*(t-5), answer: "The object remains at rest, then moves at a constant speed.", graphAnswer: "A horizontal line, followed by a straight line sloping upwards." },
+            { id: 'q11', emoji: '🛥️', func: t => (t<=5) ? 10*t : 50 + (10*(t-5) - Math.pow(t-5, 2)), answer: "The object moves at a constant fast speed, then moves with a decreasing speed.", graphAnswer: "A straight line with a steep slope, followed by a curve becoming flatter." },
+            { id: 'q12', emoji: '🏎️', func: t => (t<=5) ? 0.4*t*t : 10 + 4*(t-5), answer: "The object moves with an increasing speed, then moves at a constant speed.", graphAnswer: "A curve becoming steeper, followed by a straight line sloping upwards." },
+            
+            // 3 Three-section
+            { id: 'q13', emoji: '🐈', func: t => (t<=3) ? 2*t : ((t<=7) ? 6 + 10*(t-3) : 46 + 2*(t-7)), answer: "The object moves at a constant slow speed, then a constant fast speed, and finally a constant slow speed.", graphAnswer: "Straight lines with gentle, then steep, and finally gentle slopes." },
+            { id: 'q14', emoji: '🦅', func: t => (t<=3) ? 10*t : ((t<=7) ? 30 : 30 + 10*(t-7)), answer: "The object moves at a constant fast speed, then remains at rest, and finally moves at a constant fast speed.", graphAnswer: "A straight line with a steep slope, a horizontal line, and another steep straight line." },
+            { id: 'q15', emoji: '🛸', func: t => (t<=3) ? 0 : ((t<=7) ? 1.25*Math.pow(t-3, 2) : 20 + 10*(t-7)), answer: "The object remains at rest, then moves with an increasing speed, and finally moves at a constant speed.", graphAnswer: "A horizontal line, a curve becoming steeper, and a straight line sloping upwards." }
+        ];
+
+        // --- Core Simulation Class for Section 1 & 2 ---
+        class MultiMotionSimulator {
+            constructor(containerId, motions, isAdvanced) {
+                this.container = document.getElementById(containerId);
+                this.motions = motions;
+                this.isAdvanced = isAdvanced;
+                this.selectedIds = [motions[0].id]; // Start with first checked
+                
+                this.t = 0;
+                this.plottedPoints = {}; // map motionId -> array of points
+                this.selectedIds.forEach(id => this.plottedPoints[id] = []);
+
+                this.isPlaying = false;
+                this.isFinished = false;
+                this.isJoined = false;
+                this.lastPlotT = -1;
+                this.reqId = null;
+                this.lastFrameTime = 0;
+
+                this.buildUI();
+                this.initCanvases();
+                this.updateTable();
+                this.draw();
+            }
+
+            buildUI() {
+                const checkboxesHTML = this.motions.map(m => `
+                    <div class="relative flex items-start">
+                        <input type="checkbox" id="${this.container.id}-${m.id}" value="${m.id}" class="motion-checkbox sr-only" ${this.selectedIds.includes(m.id) ? 'checked' : ''}>
+                        <label for="${this.container.id}-${m.id}" class="flex items-center p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors w-full">
+                            <span class="text-2xl mr-3">${m.emoji}</span>
+                            <span class="font-semibold text-gray-800">${m.name}</span>
+                        </label>
+                    </div>
+                `).join('');
+                
+                this.container.innerHTML = `
+                    <div class="flex flex-col gap-6">
+                        <!-- Checkboxes & Controls -->
+                        <div class="bg-white shadow-sm border p-5 rounded-xl gap-4 flex flex-col md:flex-row justify-between items-start md:items-center">
+                            <div class="flex-grow w-full">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 checkbox-container">
+                                    ${checkboxesHTML}
+                                </div>
+                            </div>
+                            <div class="flex space-x-3 mt-4 md:mt-0 ml-0 md:ml-4 w-full md:w-auto shrink-0 justify-end">
+                                <button class="play-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Play / Plot
+                                </button>
+                                <button class="join-btn bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition-colors hidden">
+                                    Join Points
+                                </button>
+                                <button class="reset-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg shadow transition-colors">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Visuals -->
+                        <div class="flex flex-col lg:flex-row gap-6">
+                            <!-- Left: Track & Table -->
+                            <div class="lg:w-1/2 flex flex-col gap-6 w-full">
+                                <div class="bg-white p-1 border rounded-xl shadow-sm relative w-full h-48 sm:h-56">
+                                    <div class="absolute top-2 left-4 text-sm font-bold text-gray-500 uppercase tracking-wider">Physical Track (0-100m)</div>
+                                    <div class="absolute top-2 right-4 text-lg font-bold text-blue-600 timer-text">0.0 s</div>
+                                    <canvas class="track-canvas w-full h-full"></canvas>
+                                </div>
+                                <div class="bg-white border rounded-xl shadow-sm table-container overflow-x-auto w-full">
+                                    <table class="w-full text-center border-collapse text-sm dynamic-table">
+                                        <!-- Injected by JS -->
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Right: Graph & Descriptions -->
+                            <div class="lg:w-1/2 flex flex-col gap-4 w-full">
+                                <div class="bg-white p-1 border rounded-xl shadow-sm relative w-full h-[400px]">
+                                    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 text-sm font-bold text-gray-500 uppercase tracking-wider bg-white px-2 z-10">Distance-Time Graph</div>
+                                    <canvas class="graph-canvas w-full h-full"></canvas>
+                                </div>
+                                
+                                ${this.isAdvanced ? `
+                                <div class="anno-banner hidden bg-indigo-50 border border-indigo-200 p-4 text-indigo-900 text-sm shadow-sm rounded-xl transition-all duration-500">
+                                    <strong>Notice the shape!</strong> The graph is curved because the speed is changing. A steeper slope means a higher speed, and a flatter slope means a lower speed.
+                                </div>` : ''}
+
+                                <div class="desc-container flex flex-col gap-2">
+                                    <!-- Injected by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Bind elements
+                this.checkboxes = this.container.querySelectorAll('.motion-checkbox');
+                this.playBtn = this.container.querySelector('.play-btn');
+                this.joinBtn = this.container.querySelector('.join-btn');
+                this.resetBtn = this.container.querySelector('.reset-btn');
+                this.trackCanvas = this.container.querySelector('.track-canvas');
+                this.graphCanvas = this.container.querySelector('.graph-canvas');
+                this.dynamicTable = this.container.querySelector('.dynamic-table');
+                this.descContainer = this.container.querySelector('.desc-container');
+                this.timerText = this.container.querySelector('.timer-text');
+                if (this.isAdvanced) this.annoBanner = this.container.querySelector('.anno-banner');
+
+                // Checkbox Logic
+                this.checkboxes.forEach(cb => {
+                    cb.addEventListener('change', (e) => {
+                        const checkedNodes = Array.from(this.checkboxes).filter(c => c.checked);
+                        if (checkedNodes.length > 2) {
+                            e.preventDefault();
+                            e.target.checked = false;
+                            alert("You can select a maximum of 2 motions to compare at the same time.");
+                            return;
+                        }
+                        if (checkedNodes.length === 0) {
+                            // Don't allow 0
+                            e.preventDefault();
+                            e.target.checked = true;
+                            return;
+                        }
+                        this.selectedIds = checkedNodes.map(c => c.value);
+                        this.reset();
+                    });
+                });
+
+                this.playBtn.addEventListener('click', () => this.play());
+                this.joinBtn.addEventListener('click', () => this.joinPoints());
+                this.resetBtn.addEventListener('click', () => this.reset());
+
+                this.initTableDOM();
+            }
+
+            getSelectedMotions() {
+                return this.selectedIds.map(id => this.motions.find(m => m.id === id));
+            }
+
+            initTableDOM() {
+                const sMotions = this.getSelectedMotions();
+                
+                let html = `<thead><tr class="bg-gray-100 border-b border-gray-300">
+                            <th class="py-2 px-3 text-left border-r border-gray-300 font-semibold text-gray-600 min-w-[100px] sticky left-0 z-10">Time (s)</th>`;
+                for(let i=0; i<=10; i++) html += `<td class="py-2 px-3 min-w-[40px] font-mono text-gray-600">${i}</td>`;
+                html += `</tr></thead><tbody>`;
+
+                sMotions.forEach(m => {
+                    html += `<tr class="border-b border-gray-200">
+                             <th class="py-2 px-3 text-left border-r border-gray-300 font-semibold min-w-[100px] sticky left-0 z-10 bg-white" style="color: ${m.color}">${m.emoji} Dist (m)</th>`;
+                    for(let i=0; i<=10; i++) html += `<td class="py-2 px-3 min-w-[40px] font-mono text-gray-400 bg-gray-50" id="${this.container.id}-d-${m.id}-${i}">-</td>`;
+                    html += `</tr>`;
+                });
+                html += `</tbody>`;
+                this.dynamicTable.innerHTML = html;
+                this.descContainer.innerHTML = '';
+            }
+
+            initCanvases() {
+                this.ctxT = this.trackCanvas.getContext('2d');
+                this.ctxG = this.graphCanvas.getContext('2d');
+                this.resize();
+            }
+
+            resize() {
+                const setupCanvas = (c) => {
+                    const rect = c.parentElement.getBoundingClientRect();
+                    c.width = rect.width * window.devicePixelRatio;
+                    c.height = rect.height * window.devicePixelRatio;
+                    const ctx = c.getContext('2d');
+                    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+                    return rect;
+                };
+                this.trackRect = setupCanvas(this.trackCanvas);
+                this.graphRect = setupCanvas(this.graphCanvas);
+                this.draw();
+            }
+
+            play() {
+                if(this.isPlaying || this.isFinished) return;
+                this.isPlaying = true;
+                
+                this.checkboxes.forEach(cb => cb.disabled = true);
+                this.playBtn.disabled = true;
+                this.lastFrameTime = performance.now();
+                this.animate(this.lastFrameTime);
+            }
+
+            reset() {
+                cancelAnimationFrame(this.reqId);
+                this.t = 0;
+                
+                this.plottedPoints = {};
+                this.getSelectedMotions().forEach(m => this.plottedPoints[m.id] = []);
+
+                this.isPlaying = false;
+                this.isFinished = false;
+                this.isJoined = false;
+                this.lastPlotT = -1;
+                
+                this.checkboxes.forEach(cb => cb.disabled = false);
+                this.playBtn.disabled = false;
+                this.joinBtn.classList.add('hidden');
+                
+                if(this.annoBanner) this.annoBanner.classList.add('hidden');
+                this.timerText.innerText = "0.0 s";
+                
+                this.initTableDOM();
+                this.updateTable(); // To plot t=0 immediately
+                this.draw();
+            }
+
+            joinPoints() {
+                this.isJoined = true;
+                this.joinBtn.classList.add('hidden');
+                if(this.isAdvanced && this.annoBanner) {
+                    this.annoBanner.classList.remove('hidden');
+                }
+
+                // Show descriptions
+                const sMotions = this.getSelectedMotions();
+                this.descContainer.innerHTML = sMotions.map(m => `
+                    <div class="p-4 rounded-xl border" style="background-color: ${m.color}15; border-color: ${m.color}40;">
+                        <span class="text-xl mr-2">${m.emoji}</span>
+                        <span class="font-medium text-gray-800">${m.desc}</span>
+                    </div>
+                `).join('');
+
+                this.draw();
+            }
+
+            animate(now) {
+                if(!this.isPlaying) return;
+                
+                let dt = (now - this.lastFrameTime) / 1000;
+                this.lastFrameTime = now;
+                
+                this.t += dt;
+                if(this.t >= 10) {
+                    this.t = 10;
+                    this.isPlaying = false;
+                    this.isFinished = true;
+                    this.joinBtn.classList.remove('hidden');
+                }
+
+                this.updateTable();
+                this.draw();
+                this.timerText.innerText = this.t.toFixed(1) + " s";
+
+                if(this.isPlaying) {
+                    this.reqId = requestAnimationFrame((n) => this.animate(n));
+                }
+            }
+
+            updateTable() {
+                let currentSec = Math.floor(this.t);
+                const sMotions = this.getSelectedMotions();
+                
+                if(currentSec > this.lastPlotT && currentSec <= 10) {
+                    for(let sec = this.lastPlotT + 1; sec <= currentSec; sec++) {
+                        sMotions.forEach(m => {
+                            let d = m.func(sec);
+                            this.plottedPoints[m.id].push({t: sec, d: d});
+                            
+                            const td = document.getElementById(`${this.container.id}-d-${m.id}-${sec}`);
+                            if(td) {
+                                td.innerText = Math.round(d);
+                                td.classList.remove('text-gray-400', 'bg-gray-50');
+                                td.classList.add('font-bold');
+                                td.style.color = m.color;
+                                td.style.backgroundColor = m.color + '10'; // 10% opacity
+                            }
+                        });
+                    }
+                    this.lastPlotT = currentSec;
+                }
+            }
+
+            draw() {
+                this.drawTrack();
+                this.drawGraph();
+            }
+
+            drawTrack() {
+                const w = this.trackRect.width;
+                const h = this.trackRect.height;
+                const ctx = this.ctxT;
+                
+                ctx.clearRect(0, 0, w, h);
+
+                // Scenery
+                ctx.fillStyle = '#e0f2fe';
+                ctx.fillRect(0, 0, w, h * 0.4);
+                ctx.fillStyle = '#bbf7d0';
+                ctx.fillRect(0, h * 0.4, w, h * 0.6);
+
+                // Road
+                ctx.fillStyle = '#9ca3af';
+                let roadY = h * 0.45;
+                let roadH = h * 0.5;
+                ctx.fillRect(0, roadY, w, roadH);
+
+                // Lines
+                ctx.fillStyle = '#f3f4f6';
+                for(let i=0; i<w; i+=40) {
+                    ctx.fillRect(i, roadY + roadH/2 - 2, 20, 4);
+                }
+
+                // Markers (0, 50, 100)
+                ctx.fillStyle = '#374151';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                const padding = 40;
+                const trackLen = w - padding * 2;
+                [0, 50, 100].forEach(val => {
+                    let x = padding + (val/100)*trackLen;
+                    ctx.fillRect(x - 1, roadY - 10, 2, roadH + 20);
+                    ctx.fillText(val + 'm', x, roadY - 15);
+                });
+
+                // Objects
+                const sMotions = this.getSelectedMotions();
+                ctx.font = '32px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 2;
+
+                if (sMotions.length === 1) {
+                    let d = sMotions[0].func(this.t);
+                    let objX = padding + (d/100)*trackLen;
+                    ctx.fillText(sMotions[0].emoji, objX, roadY + roadH/2 - 5);
+                } else if (sMotions.length === 2) {
+                    // Top lane
+                    let d1 = sMotions[0].func(this.t);
+                    let x1 = padding + (d1/100)*trackLen;
+                    ctx.fillText(sMotions[0].emoji, x1, roadY + roadH/4);
+                    // Bottom lane
+                    let d2 = sMotions[1].func(this.t);
+                    let x2 = padding + (d2/100)*trackLen;
+                    ctx.fillText(sMotions[1].emoji, x2, roadY + (roadH*3)/4 - 10);
+                }
+                
+                ctx.shadowColor = 'transparent';
+            }
+
+            drawGraph() {
+                const w = this.graphRect.width;
+                const h = this.graphRect.height;
+                const ctx = this.ctxG;
+                const sMotions = this.getSelectedMotions();
+
+                ctx.clearRect(0, 0, w, h);
+
+                const ml = 50, mr = 30, mt = 40, mb = 40;
+                const gw = w - ml - mr;
+                const gh = h - mt - mb;
+
+                const getX = (t) => ml + (t/10) * gw;
+                const getY = (d) => mt + gh - (d/100) * gh;
+
+                // Grid
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.beginPath();
+                for(let t=0; t<=10; t++) { ctx.moveTo(getX(t), mt); ctx.lineTo(getX(t), mt+gh); }
+                for(let d=0; d<=100; d+=10) { ctx.moveTo(ml, getY(d)); ctx.lineTo(ml+gw, getY(d)); }
+                ctx.stroke();
+
+                // Axes
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#475569';
+                ctx.beginPath();
+                ctx.moveTo(ml, mt - 10); ctx.lineTo(ml, mt+gh); ctx.lineTo(ml+gw+10, mt+gh);
+                ctx.stroke();
+
+                // Labels
+                ctx.fillStyle = '#475569';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                for(let t=0; t<=10; t+=2) ctx.fillText(t, getX(t), mt+gh + 8);
+                ctx.fillText('Time (s)', ml + gw/2, mt+gh + 25);
+
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                for(let d=0; d<=100; d+=20) ctx.fillText(d, ml - 8, getY(d));
+                
+                ctx.save();
+                ctx.translate(ml - 35, mt + gh/2);
+                ctx.rotate(-Math.PI/2);
+                ctx.textAlign = 'center';
+                ctx.fillText('Distance (m)', 0, 0);
+                ctx.restore();
+
+                sMotions.forEach(m => {
+                    const pts = this.plottedPoints[m.id];
+                    if(!pts) return;
+
+                    // Lines
+                    if(this.isJoined) {
+                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = m.color;
+                        ctx.beginPath();
+                        if(this.isAdvanced) {
+                            ctx.moveTo(getX(0), getY(m.func(0)));
+                            for(let t=0; t<=10; t+=0.1) {
+                                ctx.lineTo(getX(t), getY(m.func(t)));
+                            }
+                        } else {
+                            if(pts.length > 0) {
+                                ctx.moveTo(getX(pts[0].t), getY(pts[0].d));
+                                for(let p of pts) ctx.lineTo(getX(p.t), getY(p.d));
+                            }
+                        }
+                        ctx.stroke();
+                    }
+
+                    // Dots
+                    ctx.fillStyle = m.color;
+                    for(let p of pts) {
+                        ctx.beginPath();
+                        ctx.arc(getX(p.t), getY(p.d), 5, 0, Math.PI*2);
+                        ctx.fill();
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                    }
+                });
+            }
+        }
+
+        // --- Class for Section 3 (Quiz) ---
+        class QuizSimulator {
+            constructor(containerId, quizzes) {
+                this.container = document.getElementById(containerId);
+                this.quizzes = quizzes;
+                this.currentIndex = 0;
+                this.isSubmitted = false;
+
+                this.t = 0;
+                this.isPlaying = false;
+                this.reqId = null;
+                this.lastFrameTime = 0;
+
+                this.quizSelector = document.getElementById('quiz-selector');
+                this.quizSelector.innerHTML = this.quizzes.map((q, i) => `<option value="${i}">Quiz ${i + 1}</option>`).join('');
+                this.quizSelector.addEventListener('change', (e) => {
+                    this.currentIndex = parseInt(e.target.value);
+                    this.reset();
+                });
+
+                this.buildUI();
+                this.initCanvases();
+            }
+
+            get selectedQuiz() {
+                return this.quizzes[this.currentIndex];
+            }
+
+            buildUI() {
+                this.container.innerHTML = `
+                    <div class="flex flex-col gap-6">
+                        <!-- Interface -->
+                        <div class="flex flex-col lg:flex-row gap-6">
+                            <!-- Left: Graph -->
+                            <div class="lg:w-1/2 bg-white p-2 border rounded-xl shadow-sm relative h-[400px] lg:h-[500px]">
+                                <div class="absolute top-4 left-1/2 transform -translate-x-1/2 text-sm font-bold text-gray-500 uppercase tracking-wider bg-white px-2 z-10">Distance-Time Graph</div>
+                                <canvas class="quiz-graph-canvas w-full h-full"></canvas>
+                            </div>
+
+                            <!-- Right: Input & Results -->
+                            <div class="lg:w-1/2 flex flex-col gap-6 w-full">
+                                <div class="bg-white p-6 border rounded-xl shadow-sm input-section">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Your Prediction</h3>
+                                    <p class="text-sm text-gray-600 mb-4">Analyze the graph and describe the object's motion (e.g., constant fast speed, at rest, increasing speed). <strong>Use the word "speed".</strong></p>
+                                    <textarea class="quiz-answer w-full h-28 border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" placeholder="Describe the motion shown in the graph..."></textarea>
+                                    <button class="submit-btn mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow transition-colors">
+                                        Submit Description
+                                    </button>
+                                </div>
+
+                                <div class="quiz-result hidden flex-col gap-4">
+                                    <div class="bg-green-50 border border-green-200 p-5 rounded-xl shadow-sm relative">
+                                        <div class="absolute -top-3 left-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow">Model Answer</div>
+                                        <p class="model-answer-text text-green-900 font-medium mt-2 leading-relaxed text-lg"></p>
+                                    </div>
+                                    <div class="bg-white p-2 border rounded-xl shadow-sm relative h-48 sm:h-56">
+                                        <div class="absolute top-2 left-4 text-sm font-bold text-gray-500 uppercase tracking-wider">Physical Motion Verification</div>
+                                        <div class="absolute top-2 right-4 text-sm font-bold text-gray-500 cursor-pointer hover:text-blue-600 underline replay-quiz-btn z-20">Replay</div>
+                                        <canvas class="quiz-track-canvas w-full h-full"></canvas>
+                                    </div>
+                                    <button class="next-btn w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-xl shadow transition-colors">
+                                        Next Quiz ➔
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                this.submitBtn = this.container.querySelector('.submit-btn');
+                this.replayBtn = this.container.querySelector('.replay-quiz-btn');
+                this.nextBtn = this.container.querySelector('.next-btn');
+                
+                this.graphCanvas = this.container.querySelector('.quiz-graph-canvas');
+                this.trackCanvas = this.container.querySelector('.quiz-track-canvas');
+                
+                this.inputSection = this.container.querySelector('.input-section');
+                this.resultSection = this.container.querySelector('.quiz-result');
+                this.modelText = this.container.querySelector('.model-answer-text');
+                this.textarea = this.container.querySelector('.quiz-answer');
+
+                this.submitBtn.addEventListener('click', () => this.submit());
+                this.replayBtn.addEventListener('click', () => this.replay());
+                this.nextBtn.addEventListener('click', () => this.nextQuiz());
+            }
+
+            initCanvases() {
+                this.ctxG = this.graphCanvas.getContext('2d');
+                this.ctxT = this.trackCanvas.getContext('2d');
+                this.resize();
+            }
+
+            resize() {
+                const setupCanvas = (c) => {
+                    const rect = c.parentElement.getBoundingClientRect();
+                    c.width = rect.width * window.devicePixelRatio;
+                    c.height = rect.height * window.devicePixelRatio;
+                    const ctx = c.getContext('2d');
+                    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+                    return rect;
+                };
+                
+                this.graphRect = setupCanvas(this.graphCanvas);
+                
+                let wasHidden = this.resultSection.classList.contains('hidden');
+                if(wasHidden) {
+                    this.resultSection.classList.remove('hidden');
+                    this.resultSection.style.visibility = 'hidden';
+                }
+                this.trackRect = setupCanvas(this.trackCanvas);
+                if(wasHidden) {
+                    this.resultSection.classList.add('hidden');
+                    this.resultSection.style.visibility = 'visible';
+                }
+                
+                this.drawGraph();
+                if(this.isSubmitted) this.drawTrack();
+            }
+
+            reset() {
+                cancelAnimationFrame(this.reqId);
+                this.isSubmitted = false;
+                this.t = 0;
+                this.isPlaying = false;
+                
+                this.inputSection.classList.remove('opacity-50', 'pointer-events-none');
+                this.resultSection.classList.add('hidden');
+                this.resultSection.classList.remove('flex');
+                this.textarea.value = '';
+                
+                this.quizSelector.value = this.currentIndex;
+                
+                this.drawGraph();
+            }
+
+            submit() {
+                if(this.textarea.value.trim() === '') {
+                    this.textarea.classList.add('ring-2', 'ring-red-500');
+                    setTimeout(() => this.textarea.classList.remove('ring-2', 'ring-red-500'), 500);
+                    return;
+                }
+                
+                this.isSubmitted = true;
+                this.inputSection.classList.add('opacity-50', 'pointer-events-none');
+                this.resultSection.classList.remove('hidden');
+                this.resultSection.classList.add('flex');
+                
+                this.modelText.innerText = this.selectedQuiz.answer;
+                this.resize(); 
+                this.replay();
+            }
+
+            nextQuiz() {
+                this.currentIndex = (this.currentIndex + 1) % this.quizzes.length;
+                this.reset();
+            }
+
+            replay() {
+                cancelAnimationFrame(this.reqId);
+                this.t = 0;
+                this.isPlaying = true;
+                this.lastFrameTime = performance.now();
+                this.animate(this.lastFrameTime);
+            }
+
+            animate(now) {
+                if(!this.isPlaying) return;
+                
+                let dt = (now - this.lastFrameTime) / 1000;
+                this.lastFrameTime = now;
+                
+                this.t += dt;
+                if(this.t >= 10) {
+                    this.t = 10;
+                    this.isPlaying = false;
+                }
+
+                this.drawTrack();
+
+                if(this.isPlaying) {
+                    this.reqId = requestAnimationFrame((n) => this.animate(n));
+                }
+            }
+
+            drawGraph() {
+                const w = this.graphRect.width;
+                const h = this.graphRect.height;
+                const ctx = this.ctxG;
+
+                ctx.clearRect(0, 0, w, h);
+
+                const ml = 50, mr = 30, mt = 40, mb = 40;
+                const gw = w - ml - mr;
+                const gh = h - mt - mb;
+
+                const getX = (t) => ml + (t/10) * gw;
+                const getY = (d) => mt + gh - (d/100) * gh;
+
+                // Grid
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.beginPath();
+                for(let t=0; t<=10; t++) { ctx.moveTo(getX(t), mt); ctx.lineTo(getX(t), mt+gh); }
+                for(let d=0; d<=100; d+=10) { ctx.moveTo(ml, getY(d)); ctx.lineTo(ml+gw, getY(d)); }
+                ctx.stroke();
+
+                // Axes
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#475569';
+                ctx.beginPath();
+                ctx.moveTo(ml, mt - 10); ctx.lineTo(ml, mt+gh); ctx.lineTo(ml+gw+10, mt+gh);
+                ctx.stroke();
+
+                // Labels
+                ctx.fillStyle = '#475569';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                for(let t=0; t<=10; t+=2) ctx.fillText(t, getX(t), mt+gh + 8);
+                ctx.fillText('Time (s)', ml + gw/2, mt+gh + 25);
+
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                for(let d=0; d<=100; d+=20) ctx.fillText(d, ml - 8, getY(d));
+                
+                ctx.save();
+                ctx.translate(ml - 35, mt + gh/2);
+                ctx.rotate(-Math.PI/2);
+                ctx.textAlign = 'center';
+                ctx.fillText('Distance (m)', 0, 0);
+                ctx.restore();
+
+                // Plot Full Line
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#eab308'; // strong yellow
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(getX(0), getY(this.selectedQuiz.func(0)));
+                for(let t=0; t<=10; t+=0.05) {
+                    ctx.lineTo(getX(t), getY(this.selectedQuiz.func(t)));
+                }
+                ctx.stroke();
+            }
+
+            drawTrack() {
+                const w = this.trackRect.width;
+                const h = this.trackRect.height;
+                const ctx = this.ctxT;
+                
+                ctx.clearRect(0, 0, w, h);
+
+                // Scenery 
+                ctx.fillStyle = '#1e1b4b'; 
+                ctx.fillRect(0, 0, w, h * 0.4);
+                ctx.fillStyle = '#312e81';
+                ctx.fillRect(0, h * 0.4, w, h * 0.6);
+
+                // Road
+                ctx.fillStyle = '#4b5563';
+                let roadY = h * 0.55;
+                let roadH = h * 0.35;
+                ctx.fillRect(0, roadY, w, roadH);
+
+                // Lines
+                ctx.fillStyle = '#9ca3af';
+                for(let i=0; i<w; i+=40) {
+                    ctx.fillRect(i - (this.t*10)%40, roadY + roadH/2 - 1, 20, 2);
+                }
+
+                // Markers (0, 50, 100)
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                const padding = 40;
+                const trackLen = w - padding * 2;
+                [0, 50, 100].forEach(val => {
+                    let x = padding + (val/100)*trackLen;
+                    ctx.fillRect(x - 1, roadY - 10, 2, roadH + 20);
+                    ctx.fillText(val + 'm', x, roadY - 15);
+                });
+
+                // Draw Object
+                let d = this.selectedQuiz.func(this.t);
+                let objX = padding + (d/100)*trackLen;
+                
+                ctx.font = '36px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.selectedQuiz.emoji, objX, roadY + roadH/2 - 10);
+                
+                // Track Progress Line 
+                ctx.strokeStyle = 'rgba(234, 179, 8, 0.4)';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(padding, roadY + roadH - 10);
+                ctx.lineTo(objX, roadY + roadH - 10);
+                ctx.stroke();
+            }
+        }
+
+        // --- Class for Section 4 (Reverse Quiz) ---
+        class ReverseQuizSimulator {
+            constructor(containerId, quizzes) {
+                this.container = document.getElementById(containerId);
+                this.quizzes = quizzes;
+                this.currentIndex = 0;
+                this.isSubmitted = false;
+
+                this.t = 0;
+                this.isPlaying = false;
+                this.reqId = null;
+                this.lastFrameTime = 0;
+
+                this.quizSelector = document.getElementById('rev-quiz-selector');
+                this.quizSelector.innerHTML = this.quizzes.map((q, i) => `<option value="${i}">Quiz ${i + 1}</option>`).join('');
+                this.quizSelector.addEventListener('change', (e) => {
+                    this.currentIndex = parseInt(e.target.value);
+                    this.reset();
+                });
+
+                this.buildUI();
+                this.initCanvases();
+            }
+
+            get selectedQuiz() {
+                return this.quizzes[this.currentIndex];
+            }
+
+            buildUI() {
+                this.container.innerHTML = `
+                    <div class="flex flex-col gap-6">
+                        <div class="flex flex-col lg:flex-row gap-6">
+                            <!-- Left: Track -->
+                            <div class="lg:w-1/2 flex flex-col gap-4">
+                                <div class="bg-white p-2 border rounded-xl shadow-sm relative h-64 sm:h-72 flex flex-col">
+                                    <div class="absolute top-2 left-4 text-sm font-bold text-gray-500 uppercase tracking-wider z-10">Physical Motion</div>
+                                    <div class="flex-grow relative mt-6">
+                                        <canvas class="rev-quiz-track-canvas w-full h-full"></canvas>
+                                    </div>
+                                    <div class="p-3 border-t text-center bg-gray-50 rounded-b-xl">
+                                        <button class="rev-play-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-colors w-full sm:w-auto">
+                                            ▶ Play Motion
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Input & Results -->
+                            <div class="lg:w-1/2 flex flex-col gap-6 w-full">
+                                <div class="bg-white p-6 border rounded-xl shadow-sm rev-input-section">
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Your Prediction</h3>
+                                    <p class="text-sm text-gray-600 mb-4">Watch the motion on the left and describe the shape of its distance-time graph (e.g., straight line with a steep slope, curve becoming flatter).</p>
+                                    <textarea class="rev-quiz-answer w-full h-28 border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none" placeholder="Describe the graph's shape..."></textarea>
+                                    <button class="rev-submit-btn mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow transition-colors">
+                                        Submit Description
+                                    </button>
+                                </div>
+
+                                <div class="rev-quiz-result hidden flex-col gap-4">
+                                    <div class="bg-green-50 border border-green-200 p-5 rounded-xl shadow-sm relative">
+                                        <div class="absolute -top-3 left-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow">Model Answer</div>
+                                        <p class="rev-model-answer-text text-green-900 font-medium mt-2 leading-relaxed text-lg"></p>
+                                    </div>
+                                    <div class="bg-white p-2 border rounded-xl shadow-sm relative h-64 sm:h-80">
+                                        <div class="absolute top-2 left-4 text-sm font-bold text-gray-500 uppercase tracking-wider">Distance-Time Graph Verification</div>
+                                        <canvas class="rev-quiz-graph-canvas w-full h-full mt-4"></canvas>
+                                    </div>
+                                    <button class="rev-next-btn w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-xl shadow transition-colors">
+                                        Next Quiz ➔
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                this.playBtn = this.container.querySelector('.rev-play-btn');
+                this.submitBtn = this.container.querySelector('.rev-submit-btn');
+                this.nextBtn = this.container.querySelector('.rev-next-btn');
+                
+                this.trackCanvas = this.container.querySelector('.rev-quiz-track-canvas');
+                this.graphCanvas = this.container.querySelector('.rev-quiz-graph-canvas');
+                
+                this.inputSection = this.container.querySelector('.rev-input-section');
+                this.resultSection = this.container.querySelector('.rev-quiz-result');
+                this.modelText = this.container.querySelector('.rev-model-answer-text');
+                this.textarea = this.container.querySelector('.rev-quiz-answer');
+
+                this.playBtn.addEventListener('click', () => this.replay());
+                this.submitBtn.addEventListener('click', () => this.submit());
+                this.nextBtn.addEventListener('click', () => this.nextQuiz());
+            }
+
+            initCanvases() {
+                this.ctxT = this.trackCanvas.getContext('2d');
+                this.ctxG = this.graphCanvas.getContext('2d');
+                this.resize();
+            }
+
+            resize() {
+                const setupCanvas = (c) => {
+                    const rect = c.parentElement.getBoundingClientRect();
+                    c.width = rect.width * window.devicePixelRatio;
+                    c.height = rect.height * window.devicePixelRatio;
+                    const ctx = c.getContext('2d');
+                    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+                    return rect;
+                };
+                
+                this.trackRect = setupCanvas(this.trackCanvas);
+                
+                let wasHidden = this.resultSection.classList.contains('hidden');
+                if(wasHidden) {
+                    this.resultSection.classList.remove('hidden');
+                    this.resultSection.style.visibility = 'hidden';
+                }
+                this.graphRect = setupCanvas(this.graphCanvas);
+                if(wasHidden) {
+                    this.resultSection.classList.add('hidden');
+                    this.resultSection.style.visibility = 'visible';
+                }
+                
+                this.drawTrack();
+                if(this.isSubmitted) this.drawGraph();
+            }
+
+            reset() {
+                cancelAnimationFrame(this.reqId);
+                this.isSubmitted = false;
+                this.t = 0;
+                this.isPlaying = false;
+                
+                this.inputSection.classList.remove('opacity-50', 'pointer-events-none');
+                this.resultSection.classList.add('hidden');
+                this.resultSection.classList.remove('flex');
+                this.textarea.value = '';
+                this.playBtn.disabled = false;
+                
+                this.quizSelector.value = this.currentIndex;
+                
+                this.drawTrack();
+            }
+
+            submit() {
+                if(this.textarea.value.trim() === '') {
+                    this.textarea.classList.add('ring-2', 'ring-red-500');
+                    setTimeout(() => this.textarea.classList.remove('ring-2', 'ring-red-500'), 500);
+                    return;
+                }
+                
+                this.isSubmitted = true;
+                this.inputSection.classList.add('opacity-50', 'pointer-events-none');
+                this.resultSection.classList.remove('hidden');
+                this.resultSection.classList.add('flex');
+                
+                this.modelText.innerHTML = `<strong>Motion:</strong> ${this.selectedQuiz.answer}<br><br><strong>Graph Shape:</strong> ${this.selectedQuiz.graphAnswer}`;
+                this.resize(); 
+                this.drawGraph();
+            }
+
+            nextQuiz() {
+                this.currentIndex = (this.currentIndex + 1) % this.quizzes.length;
+                this.reset();
+            }
+
+            replay() {
+                if (this.isPlaying) return;
+                cancelAnimationFrame(this.reqId);
+                this.t = 0;
+                this.isPlaying = true;
+                this.playBtn.disabled = true;
+                this.lastFrameTime = performance.now();
+                this.animate(this.lastFrameTime);
+            }
+
+            animate(now) {
+                if(!this.isPlaying) return;
+                
+                let dt = (now - this.lastFrameTime) / 1000;
+                this.lastFrameTime = now;
+                
+                this.t += dt;
+                if(this.t >= 10) {
+                    this.t = 10;
+                    this.isPlaying = false;
+                    this.playBtn.disabled = false;
+                }
+
+                this.drawTrack();
+
+                if(this.isPlaying) {
+                    this.reqId = requestAnimationFrame((n) => this.animate(n));
+                }
+            }
+
+            drawGraph() {
+                const w = this.graphRect.width;
+                const h = this.graphRect.height;
+                const ctx = this.ctxG;
+
+                ctx.clearRect(0, 0, w, h);
+
+                const ml = 50, mr = 30, mt = 40, mb = 40;
+                const gw = w - ml - mr;
+                const gh = h - mt - mb;
+
+                const getX = (t) => ml + (t/10) * gw;
+                const getY = (d) => mt + gh - (d/100) * gh;
+
+                // Grid
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.beginPath();
+                for(let t=0; t<=10; t++) { ctx.moveTo(getX(t), mt); ctx.lineTo(getX(t), mt+gh); }
+                for(let d=0; d<=100; d+=10) { ctx.moveTo(ml, getY(d)); ctx.lineTo(ml+gw, getY(d)); }
+                ctx.stroke();
+
+                // Axes
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#475569';
+                ctx.beginPath();
+                ctx.moveTo(ml, mt - 10); ctx.lineTo(ml, mt+gh); ctx.lineTo(ml+gw+10, mt+gh);
+                ctx.stroke();
+
+                // Labels
+                ctx.fillStyle = '#475569';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                for(let t=0; t<=10; t+=2) ctx.fillText(t, getX(t), mt+gh + 8);
+                ctx.fillText('Time (s)', ml + gw/2, mt+gh + 25);
+
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                for(let d=0; d<=100; d+=20) ctx.fillText(d, ml - 8, getY(d));
+                
+                ctx.save();
+                ctx.translate(ml - 35, mt + gh/2);
+                ctx.rotate(-Math.PI/2);
+                ctx.textAlign = 'center';
+                ctx.fillText('Distance (m)', 0, 0);
+                ctx.restore();
+
+                // Plot Full Line
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#eab308'; // strong yellow
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(getX(0), getY(this.selectedQuiz.func(0)));
+                for(let t=0; t<=10; t+=0.05) {
+                    ctx.lineTo(getX(t), getY(this.selectedQuiz.func(t)));
+                }
+                ctx.stroke();
+            }
+
+            drawTrack() {
+                const w = this.trackRect.width;
+                const h = this.trackRect.height;
+                const ctx = this.ctxT;
+                
+                ctx.clearRect(0, 0, w, h);
+
+                // Scenery 
+                ctx.fillStyle = '#1e1b4b'; 
+                ctx.fillRect(0, 0, w, h * 0.4);
+                ctx.fillStyle = '#312e81';
+                ctx.fillRect(0, h * 0.4, w, h * 0.6);
+
+                // Road
+                ctx.fillStyle = '#4b5563';
+                let roadY = h * 0.55;
+                let roadH = h * 0.35;
+                ctx.fillRect(0, roadY, w, roadH);
+
+                // Lines
+                ctx.fillStyle = '#9ca3af';
+                for(let i=0; i<w; i+=40) {
+                    ctx.fillRect(i - (this.t*10)%40, roadY + roadH/2 - 1, 20, 2);
+                }
+
+                // Markers (0, 50, 100)
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                const padding = 40;
+                const trackLen = w - padding * 2;
+                [0, 50, 100].forEach(val => {
+                    let x = padding + (val/100)*trackLen;
+                    ctx.fillRect(x - 1, roadY - 10, 2, roadH + 20);
+                    ctx.fillText(val + 'm', x, roadY - 15);
+                });
+
+                // Draw Object
+                let d = this.selectedQuiz.func(this.t);
+                let objX = padding + (d/100)*trackLen;
+                
+                ctx.font = '36px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.selectedQuiz.emoji, objX, roadY + roadH/2 - 10);
+                
+                // Track Progress Line 
+                ctx.strokeStyle = 'rgba(234, 179, 8, 0.4)';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(padding, roadY + roadH - 10);
+                ctx.lineTo(objX, roadY + roadH - 10);
+                ctx.stroke();
+            }
+        }
+
+        // --- Global App Management ---
+        let sim1, sim2, quizSim, revQuizSim;
+
+        function initApp() {
+            sim1 = new MultiMotionSimulator('sim1-container', MOTIONS_BASIC, false);
+            sim2 = new MultiMotionSimulator('sim2-container', MOTIONS_ADVANCED, true);
+            quizSim = new QuizSimulator('quiz-container', QUIZZES);
+            revQuizSim = new ReverseQuizSimulator('rev-quiz-container', QUIZZES);
+            
+            window.addEventListener('resize', () => {
+                clearTimeout(window.resizeTimer);
+                window.resizeTimer = setTimeout(() => {
+                    sim1.resize();
+                    sim2.resize();
+                    quizSim.resize();
+                    revQuizSim.resize();
+                }, 100);
+            });
+        }
+
+        function openSection(sectionId) {
+            document.getElementById('main-menu').classList.add('hidden-section');
+            document.getElementById('app-frame').classList.remove('hidden-section');
+
+            ['section1', 'section2', 'section3', 'section4'].forEach(id => {
+                document.getElementById(id).classList.add('hidden-section');
+            });
+            
+            document.getElementById(sectionId).classList.remove('hidden-section');
+            
+            let title = "";
+            if(sectionId === 'section1') {
+                title = "Section 1: Basic Plotting";
+                setTimeout(() => sim1.resize(), 10);
+                sim1.reset();
+            } else if(sectionId === 'section2') {
+                title = "Section 2: Advanced Curves";
+                setTimeout(() => sim2.resize(), 10);
+                sim2.reset();
+            } else if(sectionId === 'section3') {
+                title = "Section 3: Predict the Motion";
+                setTimeout(() => quizSim.resize(), 10);
+            } else if(sectionId === 'section4') {
+                title = "Section 4: Predict the Graph";
+                setTimeout(() => revQuizSim.resize(), 10);
+                revQuizSim.reset();
+            }
+            document.getElementById('section-title').innerText = title;
+        }
+
+        function goToMenu() {
+            document.getElementById('app-frame').classList.add('hidden-section');
+            document.getElementById('main-menu').classList.remove('hidden-section');
+        }
+
+        // Initialize when DOM is ready
+        window.onload = initApp;
+
+    </script>
+</body>
+</html>
